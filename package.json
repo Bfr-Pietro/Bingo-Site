@@ -8,14 +8,20 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@astrojs/vercel": "^8.1.4",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["bingo", "nodejs", "socket.io", "game"],
+  "keywords": [
+    "bingo",
+    "nodejs",
+    "socket.io",
+    "game"
+  ],
   "author": "Seu Nome",
   "license": "MIT"
 }
