@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4834d4, #686de0);
+        }
+
+        .game-area {
+            display: none;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .bingo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            margin: 15px 0;
+        }
+
+        .bingo-header {
+            background: #333;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .bingo-cell {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bingo-cell:hover {
+            background: #e9ecef;
+        }
+
+        .bingo-cell.marked {
+            background: linear-gradient(45deg, #20bf6b, #26d089);
+            color: white;
+            border-color: #20bf6b;
+        }
+
+        .bingo-cell.free {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .draw-button {
+            width: 100%;
+            background: linear-gradient(45deg, #20bf6b, #26d089);
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 191, 107, 0.4);
+        }
+
+        .draw-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-number {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .number-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .called-numbers {
+            background: white;
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .called-numbers h3 {
+            margin-bottom: 10px;
+        }
+
+        .number-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .called-number {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .share-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .share-link {
+            background: white;
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            word-break: break-all;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: #4834d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .status.waiting {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+        }
+
+        .status.connected {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+        }
+
+        .room-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .bingo-cell {
+                padding: 10px;
+                font-size: 1em;
+            }
+            
+            .number-display {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎱 Bingo Online</h1>
+        
+        <div id="menu" class="menu">
+            <button class="btn" onclick="createRoom()">Criar Sala</button>
+            <div>
+                <input type="text" id="roomId" placeholder="ID da Sala" style="padding: 10px; border-radius: 8px; border: none; margin-right: 10px;">
+                <button class="btn btn-secondary" onclick="joinRoom()">Entrar na Sala</button>
+            </div>
+        </div>
+
+        <div id="gameArea" class="game-area">
+            <div class="bingo-card">
+                <div class="card-header">
+                    <h2 id="playerType">Sua Cartela</h2>
+                </div>
+                <div class="bingo-grid" id="bingoGrid">
+                    <!-- Cabeçalho -->
+                    <div class="bingo-header">B</div>
+                    <div class="bingo-header">I</div>
+                    <div class="bingo-header">N</div>
+                    <div class="bingo-header">G</div>
+                    <div class="bingo-header">O</div>
+                    <!-- Células serão geradas dinamicamente -->
+                </div>
+                <button class="btn" onclick="checkBingo()" style="margin-top: 15px;">Verificar BINGO!</button>
+            </div>
+
+            <div class="controls">
+                <div id="hostControls" style="display: none;">
+                    <div class="share-section">
+                        <h3>Compartilhar Sala</h3>
+                        <div class="share-link" id="shareLink"></div>
+                        <button class="copy-btn" onclick="copyLink()">Copiar Link</button>
+                    </div>
+                    
+                    <button class="draw-button" id="drawButton" onclick="drawNumber()">
+                        Sortear Número
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="resetGame()" style="width: 100%; margin-top: 10px;">
+    Resetar Jogo
+</button>
+                </div>
+
+                <div class="current-number">
+                    <div>Último Número</div>
+                    <div class="number-display" id="currentNumber">-</div>
+                </div>
+
+                <div class="called-numbers">
+                    <h3>Números Sorteados</h3>
+                    <div class="number-list" id="calledNumbers"></div>
+                </div>
+
+                <div class="status waiting" id="gameStatus">
+                    Aguardando...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Variáveis globais
+        let isHost = false;
+        let roomId = null;
+        let gameData = {
+            calledNumbers: [],
+            currentNumber: null,
+            players: {}
+        };
+        let myCard = [];
+
+        // Gerar ID único para sala
+        function generateRoomId() {
+            return Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+
+        // Criar sala
+        function createRoom() {
+            isHost = true;
+            roomId = generateRoomId();
+            
+            // Salvar dados da sala no localStorage (simulando servidor)
+            gameData.roomId = roomId;
+            gameData.host = true;
+            localStorage.setItem('bingoRoom_' + roomId, JSON.stringify(gameData));
+            
+            showGameArea();
+            updateShareLink();
+            document.getElementById('playerType').textContent = 'Sua Cartela (Host)';
+            document.getElementById('hostControls').style.display = 'block';
+            document.getElementById('gameStatus').textContent = 'Sala criada! Compartilhe o link.';
+            
+            generateBingoCard();
+            startRoomPolling();
+        }
+
+        // Entrar na sala
+        function joinRoom() {
+            const inputRoomId = document.getElementById('roomId').value.trim().toUpperCase();
+            if (!inputRoomId) {
+                alert('Digite o ID da sala!');
+                return;
+            }
+
+            const savedRoom = localStorage.getItem('bingoRoom_' + inputRoomId);
+            if (!savedRoom) {
+                alert('Sala não encontrada!');
+                return;
+            }
+
+            isHost = false;
+            roomId = inputRoomId;
+            gameData = JSON.parse(savedRoom);
+            
+            showGameArea();
+            document.getElementById('playerType').textContent = 'Sua Cartela (Convidado)';
+            document.getElementById('gameStatus').textContent = 'Conectado à sala!';
+            document.getElementById('gameStatus').className = 'status connected';
+            
+            generateBingoCard();
+            startRoomPolling();
+        }
+
+        // Mostrar área do jogo
+        function showGameArea() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'grid';
+        }
+
+        // Atualizar link de compartilhamento
+        function updateShareLink() {
+            const link = window.location.href + '?room=' + roomId;
+            document.getElementById('shareLink').textContent = link;
+        }
+
+        // Copiar link
+        function copyLink() {
+            const link = document.getElementById('shareLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copiado!');
+            });
+        }
+
+        // Gerar cartela de bingo
+function generateBingoCard() {
+    const ranges = {
+        B: [1, 15],
+        I: [16, 30],
+        N: [31, 45],
+        G: [46, 60],
+        O: [61, 75]
+    };
+
+    myCard = [];
+    const grid = document.getElementById('bingoGrid');
+    
+    // Limpar grid (manter cabeçalho)
+    while (grid.children.length > 5) {
+        grid.removeChild(grid.lastChild);
+    }
+
+    // Criar matriz 5x5 para organizar os números
+    const cardMatrix = Array(5).fill().map(() => Array(5).fill(null));
+
+    // Gerar números para cada coluna
+    Object.keys(ranges).forEach((letter, colIndex) => {
+        const [min, max] = ranges[letter];
+        const columnNumbers = [];
+        
+        // Gerar 5 números únicos para a coluna
+        while (columnNumbers.length < 5) {
+            const num = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (!columnNumbers.includes(num)) {
+                columnNumbers.push(num);
+            }
+        }
+
+        // Colocar números na coluna da matriz
+        for (let row = 0; row < 5; row++) {
+            if (letter === 'N' && row === 2) {
+                cardMatrix[row][colIndex] = 'FREE';
+            } else {
+                cardMatrix[row][colIndex] = columnNumbers[row];
+            }
+        }
+    });
+
+    // Adicionar células ao grid linha por linha
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 5; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'bingo-cell';
+            const value = cardMatrix[row][col];
+            
+            if (value === 'FREE') {
+                cell.textContent = 'FREE';
+                cell.className += ' free marked';
+                myCard.push('FREE');
+            } else {
+                cell.textContent = value;
+                cell.onclick = () => toggleCell(cell);
+                myCard.push(value);
+            }
+            
+            grid.appendChild(cell);
+        }
+    }
+}
+
+        // Alternar marcação da célula
+        function toggleCell(cell) {
+            if (!cell.classList.contains('free')) {
+                cell.classList.toggle('marked');
+            }
+        }
+
+        // Sortear número (apenas host)
+        function drawNumber() {
+            if (!isHost) return;
+
+            const availableNumbers = [];
+            
+            // Gerar todos os números possíveis
+            const ranges = [
+                { letter: 'B', min: 1, max: 15 },
+                { letter: 'I', min: 16, max: 30 },
+                { letter: 'N', min: 31, max: 45 },
+                { letter: 'G', min: 46, max: 60 },
+                { letter: 'O', min: 61, max: 75 }
+            ];
+
+            ranges.forEach(range => {
+                for (let i = range.min; i <= range.max; i++) {
+                    const numberCall = range.letter + '-' + i;
+                    if (!gameData.calledNumbers.includes(numberCall)) {
+                        availableNumbers.push(numberCall);
+                    }
+                }
+            });
+
+            if (availableNumbers.length === 0) {
+                alert('Todos os números já foram sorteados!');
+                return;
+            }
+
+            // Sortear número aleatório
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const drawnNumber = availableNumbers[randomIndex];
+            
+            gameData.calledNumbers.push(drawnNumber);
+            gameData.currentNumber = drawnNumber;
+            
+            // Salvar no localStorage
+            localStorage.setItem('bingoRoom_' + roomId, JSON.stringify(gameData));
+            
+            updateGameDisplay();
+            speakNumber(drawnNumber);
+
+            // Desabilitar botão temporariamente
+            const button = document.getElementById('drawButton');
+            button.disabled = true;
+            setTimeout(() => {
+                button.disabled = false;
+            }, 2000);
+        }
+
+        // Atualizar display do jogo
+        function updateGameDisplay() {
+            document.getElementById('currentNumber').textContent = gameData.currentNumber || '-';
+            
+            const calledNumbersDiv = document.getElementById('calledNumbers');
+            calledNumbersDiv.innerHTML = '';
+            
+            gameData.calledNumbers.forEach(number => {
+                const span = document.createElement('span');
+                span.className = 'called-number';
+                span.textContent = number;
+                calledNumbersDiv.appendChild(span);
+            });
+
+            // Auto-marcar números na cartela
+            autoMarkNumbers();
+        }
+
+        // Marcar automaticamente números sorteados
+        function autoMarkNumbers() {
+            const cells = document.querySelectorAll('.bingo-cell:not(.free)');
+            cells.forEach(cell => {
+                const number = parseInt(cell.textContent);
+                const isNumberCalled = gameData.calledNumbers.some(called => {
+                    const calledNumber = parseInt(called.split('-')[1]);
+                    return calledNumber === number;
+                });
+                
+                if (isNumberCalled) {
+                    cell.classList.add('marked');
+                }
+            });
+        }
+
+        // Sintetizar voz para número sorteado
+        function speakNumber(numberCall) {
+            if ('speechSynthesis' in window) {
+                const [letter, number] = numberCall.split('-');
+                const text = `${letter} ${number}`;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Verificar BINGO
+        function checkBingo() {
+            const cells = document.querySelectorAll('.bingo-cell');
+            const marked = Array.from(cells).map(cell => cell.classList.contains('marked'));
+            
+            // Verificar linhas horizontais
+            for (let row = 0; row < 5; row++) {
+                let isLine = true;
+                for (let col = 0; col < 5; col++) {
+                    const index = row * 5 + col + 5; // +5 para pular o cabeçalho
+                    if (!marked[index - 5]) { // -5 para ajustar índice
+                        isLine = false;
+                        break;
+                    }
+                }
+                if (isLine) {
+                    celebrateBingo();
+                    return;
+                }
+            }
+
+            // Verificar colunas verticais
+            for (let col = 0; col < 5; col++) {
+                let isLine = true;
+                for (let row = 0; row < 5; row++) {
+                    const index = row * 5 + col + 5;
+                    if (!marked[index - 5]) {
+                        isLine = false;
+                        break;
+                    }
+                }
+                if (isLine) {
+                    celebrateBingo();
+                    return;
+                }
+            }
+
+            // Verificar diagonais
+            let diagonal1 = true, diagonal2 = true;
+            for (let i = 0; i < 5; i++) {
+                if (!marked[i * 5 + i]) diagonal1 = false;
+                if (!marked[i * 5 + (4 - i)]) diagonal2 = false;
+            }
+            
+            if (diagonal1 || diagonal2) {
+                celebrateBingo();
+                return;
+            }
+
+            alert('Ainda não é BINGO! Continue jogando.');
+        }
+
+        // Comemorar BINGO
+        function celebrateBingo() {
+            alert('🎉 BINGO! Parabéns, você ganhou! 🎉');
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('BINGO! Parabéns!');
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.5;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Polling para sincronizar dados
+        function startRoomPolling() {
+            setInterval(() => {
+                if (roomId) {
+                    const savedRoom = localStorage.getItem('bingoRoom_' + roomId);
+                    if (savedRoom) {
+                        const updatedData = JSON.parse(savedRoom);
+                        if (JSON.stringify(updatedData) !== JSON.stringify(gameData)) {
+                            gameData = updatedData;
+                            updateGameDisplay();
+                            
+                            // Tocar som do último número se for novo
+                            if (gameData.currentNumber && !isHost) {
+                                speakNumber(gameData.currentNumber);
+                            }
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        // Verificar se há parâmetro de sala na URL
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomParam = urlParams.get('room');
+            if (roomParam) {
+                document.getElementById('roomId').value = roomParam;
+            }
+        });
+    </script>
+</body>
+</html>
